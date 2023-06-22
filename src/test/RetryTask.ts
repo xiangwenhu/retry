@@ -1,15 +1,24 @@
 import RetryTask from "../RetryTask";
 
 
-const taskFun = () => {
+interface IContext {
+    taskName: string;
+}
+
+const taskFun = function(this: IContext){
     const r = Math.random();
     if (r >= 0.5) {
-        throw new Error("greater than 0.5")
+        throw new Error(`${this.taskName} error, value greater than 0.5`);
     }
     return r;
 }
 
-const rTask = new RetryTask();
+const rTask = new RetryTask({
+    context: {
+        taskName: "randomFun"
+    },
+    args: []
+});
 rTask
     .onRetry((attemptTimes, error) => {
         console.log("onRetry:", attemptTimes, error);
