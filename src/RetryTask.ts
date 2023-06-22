@@ -10,27 +10,37 @@ import {
 import { DEFAULT_OPTIONS } from "./const";
 import * as timeouts from "./util/timeouts";
 
-class RetryTask extends EventEmitter {
+class RetryTask {
     protected ticket: any;
     protected fn: Function | null = null;
-    protected attemptTimes: number = 1;
-    protected timeouts: number[] | null = [];
+    protected _attemptTimes: number = 1;
+    protected _timeouts: number[] | null = [];
     protected oriTimeouts: number[] = [];
     protected isRunning: boolean = false;
-
     protected options: RetryOptions;
 
+    protected emitter = new EventEmitter();
+
+
+
+    public get attemptTimes(){
+        return this._attemptTimes;
+    }
+
+    public get timeouts(){
+        return this.oriTimeouts;
+    }
+
     constructor(options: RetryOptions = {}) {
-        super();
         this.options = Object.assign({}, DEFAULT_OPTIONS, options);
-        this.timeouts = [];
+        this._timeouts = [];
         this.oriTimeouts = [];
     }
 
     reset() {
         this.ticket && clearTimeout(this.ticket);
-        this.attemptTimes = 1;
-        this.timeouts = [...this.oriTimeouts];
+        this._attemptTimes = 1;
+        this._timeouts = [...this.oriTimeouts];
         this.isRunning = false;
         return this;
     }
@@ -55,8 +65,8 @@ class RetryTask extends EventEmitter {
             const onError = function (error: any) {
                 reject(error);
             };
-            this.once("complete", onComplete);
-            this.once("error", onError);
+            this.emitter.once("complete", onComplete);
+            this.emitter.once("error", onError);
             this.start(fn, options);
         });
     }
@@ -71,12 +81,12 @@ class RetryTask extends EventEmitter {
             this.options,
             options
         );
-        this.timeouts = timeouts.createTimeoutTimes(this.options);
-        this.oriTimeouts = this.timeouts;
+        this._timeouts = timeouts.createTimeoutTimes(this.options);
+        this.oriTimeouts = this._timeouts;
         this.fn = fn;
     }
 
-    attempt(): any {
+    protected attempt(): any {
         try {
             const { context, args } = this.options;
             const result = this.fn!.apply(context, args);
@@ -87,7 +97,7 @@ class RetryTask extends EventEmitter {
     }
 
     protected retry = (err: any) => {
-        const timeout = this.timeouts?.shift();
+        const timeout = this._timeouts?.shift();
         if (timeout == undefined) {
             this._onError(
                 new Error(`超过最大尝试次数:${this.options.retries}`)
@@ -96,7 +106,7 @@ class RetryTask extends EventEmitter {
         }
         this._onRetry(err);
         this.ticket = setTimeout(() => {
-            this.attemptTimes++;
+            this._attemptTimes++;
             this.attempt();
         }, timeout);
     };
@@ -116,21 +126,21 @@ class RetryTask extends EventEmitter {
         return this;
     }
 
-    _on(evName: EventName, fn: CommonFunction) {
-        this.on(evName, fn);
+    protected _on(evName: EventName, fn: CommonFunction) {
+        this.emitter.on(evName, fn);
     }
 
     protected _onComplete = (res: any) => {
         this.isRunning = false;
-        this.emit("complete", this.attemptTimes, res);
+        this.emitter.emit("complete", this._attemptTimes, res);
     };
 
     protected _onRetry(error: any) {
-        this.emit("retry", this.attemptTimes, error);
+        this.emitter.emit("retry", this._attemptTimes, error);
     }
 
     protected _onError(error: any) {
-        this.emit("error", error);
+        this.emitter.emit("error", error);
     }
 }
 

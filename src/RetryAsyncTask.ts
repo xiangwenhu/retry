@@ -1,7 +1,7 @@
 import RetryTask from "./RetryTask";
 
 class RetryAsyncTask extends RetryTask {
-    attempt() {
+    protected attempt() {
         try {
             const { context, args } = this.options;
             Promise.resolve()

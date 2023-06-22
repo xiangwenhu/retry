@@ -49,3 +49,6 @@ rTask
     .catch((err) => {
         log("error:", err);
     });
+
+
+    rTask.
