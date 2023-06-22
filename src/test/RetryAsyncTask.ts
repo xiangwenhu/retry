@@ -12,7 +12,7 @@ const taskFun = function (this: IContext) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             const r = Math.random();
-            if (r >= 0.5) {
+            if (r >= 0) {
                 return reject(
                     new Error(`${this.taskName} error, value greater than 0.5`)
                 );
@@ -38,7 +38,7 @@ rTask
         log("onComplete:", attemptTimes, res);
     })
     .onError((error) => {
-        log("error:", error);
+        log("onError:", error);
     })
     .startPromise(taskFun, {
         retries: 3,

@@ -98,9 +98,9 @@ class RetryTask {
 
     protected retry = (err: any) => {
         const timeout = this._timeouts?.shift();
-        if (timeout == undefined) {
+        if (this._attemptTimes >= this.options.retries!) {
             this._onError(
-                new Error(`超过最大尝试次数:${this.options.retries}`)
+                new Error(`失败次数超过最大尝试次数:${this.options.retries}`)
             );
             return;
         }
