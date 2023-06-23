@@ -22,6 +22,20 @@ const taskFun = function (this: IContext) {
     });
 };
 
+const taskFun2 = function (this: IContext) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const r = Math.random();
+            if (r >= 0) {
+                return reject(
+                    new Error(`${this.taskName} error, value greater than 0.5`)
+                );
+            }
+            return resolve(r);
+        }, 1000);
+    });
+};
+
 const rTask = new RetryAsyncTask({
     context: {
         taskName: "randomFun",
@@ -30,6 +44,7 @@ const rTask = new RetryAsyncTask({
     minTimeout: 1000,
     maxTimeout: 1000
 });
+
 rTask
     .onRetry((attemptTimes, error) => {
         log("onRetry:", attemptTimes, error);
@@ -39,9 +54,22 @@ rTask
     })
     .onError((error) => {
         log("onError:", error);
+    });
+
+
+    rTask.startPromise(taskFun, {
+        context: {  taskName: "randomFun2"}
     })
-    .startPromise(taskFun, {
-        retries: 3,
+    .then((res) => {
+        log("res:", res);
+    })
+    .catch((err) => {
+        log("error:", err);
+    });
+
+
+    rTask.startPromise(taskFun2, {
+        context: {  taskName: "randomFun2"}
     })
     .then((res) => {
         log("res:", res);

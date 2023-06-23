@@ -21,13 +21,11 @@ class RetryTask {
 
     protected emitter = new EventEmitter();
 
-
-
-    public get attemptTimes(){
+    public get attemptTimes() {
         return this._attemptTimes;
     }
 
-    public get timeouts(){
+    public get timeouts() {
         return this.oriTimeouts;
     }
 
@@ -58,6 +56,10 @@ class RetryTask {
     }
 
     startPromise(fn: Function, options: RetryOptions = {}) {
+        if (this.isRunning) {
+            return Promise.reject(new Error("task is running"));
+        }
+
         return new Promise((resolve, reject) => {
             const onComplete = function (attemptTimes: number, res: any) {
                 resolve({ attemptTimes, data: res });
@@ -140,6 +142,7 @@ class RetryTask {
     }
 
     protected _onError(error: any) {
+        this.isRunning = false;
         this.emitter.emit("error", error);
     }
 }
