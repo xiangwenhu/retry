@@ -100,21 +100,22 @@ class RetryTask {
 
     protected retry = (err: any) => {
         const timeout = this._timeouts?.shift();
-        if (this._attemptTimes >= this.options.retries!) {
+        if (this._attemptTimes >= this.options.attemptTimes!) {
+            this._onAttemptError(err);
             this._onError(
-                new Error(`失败次数超过最大尝试次数:${this.options.retries}`)
+                new Error(`尝试次数超过最大尝试次数:${this.options.attemptTimes}`)
             );
             return;
         }
-        this._onRetry(err);
+        this._onAttemptError(err);
         this.ticket = setTimeout(() => {
             this._attemptTimes++;
             this.attempt();
         }, timeout);
     };
 
-    onRetry(fn: TaskRetryFun) {
-        this._on("retry", fn);
+    onAttemptError(fn: TaskRetryFun) {
+        this._on("attemptError", fn);
         return this;
     }
 
@@ -137,8 +138,8 @@ class RetryTask {
         this.emitter.emit("complete", this._attemptTimes, res);
     };
 
-    protected _onRetry(error: any) {
-        this.emitter.emit("retry", this._attemptTimes, error);
+    protected _onAttemptError(error: any) {
+        this.emitter.emit("attemptError", this._attemptTimes, error);
     }
 
     protected _onError(error: any) {

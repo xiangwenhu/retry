@@ -46,8 +46,8 @@ const rTask = new RetryAsyncTask({
 });
 
 rTask
-    .onRetry((attemptTimes, error) => {
-        log("onRetry:", attemptTimes, error);
+    .onAttemptError((attemptTimes, error) => {
+        log("onAttemptError:", attemptTimes, error);
     })
     .onComplete((attemptTimes, res) => {
         log("onComplete:", attemptTimes, res);

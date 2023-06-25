@@ -19,7 +19,7 @@ export interface RetryOptions extends RetryTimeoutOption {
      /**
       * 重试次数
       */
-     retries?: number;
+     attemptTimes?: number;
      /**
       * 参数
       */
@@ -32,7 +32,7 @@ export interface RetryOptions extends RetryTimeoutOption {
 
 
 
-export type EventName =  "retry" | "complete" | "error";
+export type EventName =  "attemptError" | "complete" | "error";
 
 
 // export interface IRetryTask {

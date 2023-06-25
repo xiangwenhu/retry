@@ -23,8 +23,8 @@ const rTask = new RetryTask({
     args: []
 });
 rTask
-    .onRetry((attemptTimes, error) => {
-        log("onRetry:", attemptTimes, error);
+    .onAttemptError((attemptTimes, error) => {
+        log("onAttemptError:", attemptTimes, error);
     })
     .onComplete((attemptTimes, res) => {
         log("onComplete:", attemptTimes, res);
@@ -33,7 +33,7 @@ rTask
         log("onError:", error);
     })
     .startPromise(taskFun, {
-        retries: 3
+        attemptTimes: 3
     }).then(res => {
         log("res:", res);
     }).catch(err => {

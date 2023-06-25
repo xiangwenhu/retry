@@ -14,7 +14,7 @@ export function createTimeoutTimes(options: RetryOptions | number[]): number[] {
     }
 
     const timeouts: number[] = [];
-    for (var i = 0; i < opts.retries!; i++) {
+    for (var i = 0; i < opts.attemptTimes!; i++) {
         timeouts.push(createTimeoutTime(i, opts));
     }
 
