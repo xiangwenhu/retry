@@ -1,4 +1,4 @@
-import RetryTask from "../RetryTask";
+import RetryTask from "../src/RetryTask";
 
 const log = (...args: any[]) => {
     console.log(`${new Date().toLocaleTimeString()}`, ...args);

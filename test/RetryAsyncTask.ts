@@ -1,4 +1,4 @@
-import RetryAsyncTask from "../RetryAsyncTask";
+import RetryAsyncTask from "../src/RetryAsyncTask";
 
 interface IContext {
     taskName: string;
